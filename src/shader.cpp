@@ -1,11 +1,13 @@
 #include "shader.hpp"
+#include "asseration.hpp"
 
 const std::string Shader::LOG_TAG = "Shader";
 
 Shader::Shader(const std::string &vertexShaderProgram,
-               const std::string &fragmentShaderProgram)
+               const std::string &fragmentShaderProgram,
+               const std::string &geometryShaderProgram)
 {
-  unsigned int vertexShaderId, fragmentShaderId;
+  unsigned int vertexShaderId = 0, fragmentShaderId = 0, geometryShaderId = 0;
   vertexShaderId            = glCreateShader(GL_VERTEX_SHADER);
   auto vertexShaderCodeCStr = vertexShaderProgram.c_str();
   glShaderSource(vertexShaderId, 1, &vertexShaderCodeCStr, NULL);
@@ -21,6 +23,17 @@ Shader::Shader(const std::string &vertexShaderProgram,
   id = glCreateProgram();
   glAttachShader(id, vertexShaderId);
   glAttachShader(id, fragmentShaderId);
+
+  if (!geometryShaderProgram.empty())
+  {
+    geometryShaderId            = glCreateShader(GL_GEOMETRY_SHADER);
+    auto geometryShaderCodeCStr = geometryShaderProgram.c_str();
+    glShaderSource(geometryShaderId, 1, &geometryShaderCodeCStr, NULL);
+    glCompileShader(geometryShaderId);
+    checkForCompileErrors(geometryShaderId, ShaderType::GEOMETRY);
+    glAttachShader(id, geometryShaderId);
+  }
+
   glLinkProgram(id);
   checkForCompileErrors(id, ShaderType::PROGRAMM);
 
@@ -39,6 +52,7 @@ void Shader::checkForCompileErrors(const GLuint     shaderId,
   {
   case ShaderType::VERTEX:
   case ShaderType::FRAGMENT:
+  case ShaderType::GEOMETRY:
     glGetShaderiv(shaderId, GL_COMPILE_STATUS, &success);
     if (!success)
     {
@@ -63,7 +77,7 @@ void Shader::checkForCompileErrors(const GLuint     shaderId,
     break;
 
   default:
-    assert(0);
+    FAIL;
   }
 }
 
@@ -77,7 +91,9 @@ std::string Shader::shaderTypeToString(ShaderType shaderType) const
     return "Fragment";
   case ShaderType::PROGRAMM:
     return "Programm";
+  case ShaderType::GEOMETRY:
+    return "Geometry";
   default:
-    assert(0);
+    FAIL;
   }
 }

@@ -7,11 +7,13 @@ class Texture2D
 public:
   unsigned getId() { return id; }
 
-  Texture2D();
+  Texture2D(const unsigned       width,
+            const unsigned       height,
+            const unsigned char *data,
+            const unsigned       internal_format,
+            const unsigned       image_format);
 
   ~Texture2D();
-
-  void generate(unsigned width, unsigned height, unsigned char *data);
 
   void bind() const;
 
@@ -30,4 +32,6 @@ private:
   unsigned wrap_t     = 0; // wrapping mode on T axis
   unsigned filter_min = 0; // filtering mode if texture pixels < screen pixels
   unsigned filter_max = 0; // filtering mode if texture pixels > screen pixels
+
+  void generate(const unsigned char *data);
 };

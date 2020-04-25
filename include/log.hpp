@@ -7,6 +7,8 @@ class Log
 {
 
 public:
+  Log() {}
+
   ~Log()
   {
     fprintf(stderr, "%s\n", log_buffer.str().c_str());

@@ -17,9 +17,11 @@ public:
    *
    * @param vertexShaderProgram Path to vertex shader
    * @param fragmentShaderProgram Path to fragment shader
+   * @param geometryShaderProgram Path to geometry shader. This is optional
    */
   Shader(const std::string &vertexShaderProgram,
-         const std::string &fragmentShaderProgram);
+         const std::string &fragmentShaderProgram,
+         const std::string &geometryShaderProgram = "");
 
   /**
    * Get the id of the shader
@@ -196,7 +198,8 @@ private:
   {
     PROGRAMM,
     FRAGMENT,
-    VERTEX
+    VERTEX,
+    GEOMETRY
   };
 
   std::string shaderTypeToString(ShaderType shaderType) const;

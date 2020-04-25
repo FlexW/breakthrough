@@ -2,7 +2,7 @@ file(GLOB_RECURSE HEADER_LIST CONFIGURE_DEPENDS "${breakthroughgl_SOURCE_DIR}/in
 file(GLOB_RECURSE SOURCE_LIST CONFIGURE_DEPENDS "*.cpp")
 
 add_library(breakthroughgl_library ${SOURCE_LIST} ${HEADER_LIST})
-target_link_libraries(breakthroughgl_library glad_library)
+target_link_libraries(breakthroughgl_library glad_library stb_library)
 target_include_directories(
   breakthroughgl_library
   PUBLIC
