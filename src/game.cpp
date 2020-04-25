@@ -1,13 +1,18 @@
 #include "game.hpp"
 
-Game::Game(unsigned width, unsigned height) {}
+Game::Game(unsigned width, unsigned height)
+    : Window("Breaktrough", width, height)
+{
+}
 
 Game::~Game() {}
 
 void Game::init() {}
 
-void Game::process_input(float delta_time) {}
+void Game::draw() {}
 
-void Game::update(float delta_time) {}
-
-void Game::render() {}
+bool Game::run()
+{
+  show();
+  return true;
+}

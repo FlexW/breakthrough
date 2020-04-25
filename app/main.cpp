@@ -1,7 +1,5 @@
 #include <iostream>
 
-int main(int argc, char *argv[])
-{
-  std::cout << "Hello World!" << std::endl;
-  return 0;
-}
+#include "game.hpp"
+
+int main() { return Game(1280, 720).run(); }
