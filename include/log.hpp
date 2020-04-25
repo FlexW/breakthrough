@@ -39,4 +39,7 @@ public:
 
 private:
   std::ostringstream log_buffer;
+
+  Log(Log &)  = delete;
+  Log(Log &&) = delete;
 };
