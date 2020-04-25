@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.17)
 project(breakthroughgl
   VERSION 0.0.1
   DESCRIPTION "A clone in OpenGL of the atari game Breaktrough"
-  LANGUAGES CXX)
+  LANGUAGES CXX C)
 
 # Only do these if this is the main project, and not if it is included through add_subdirectory
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
@@ -16,5 +16,6 @@ if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
 
 endif()
 
+add_subdirectory(external)
 add_subdirectory(src)
 add_subdirectory(app)
