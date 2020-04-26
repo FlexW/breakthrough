@@ -4,10 +4,15 @@
 
 #include "resource-manager.hpp"
 
+static const std::string LOG_TAG = "ResourceManager";
+
 std::unordered_map<std::string, std::shared_ptr<Texture2D>>
     ResourceManager::textures;
+
 std::unordered_map<std::string, std::shared_ptr<Shader>>
     ResourceManager::shaders;
+
+const std::string ResourceManager::resources_directory = "resources";
 
 std::shared_ptr<Shader>
 ResourceManager::load_shader(const std::string &vertex_shader_file,
@@ -18,6 +23,16 @@ ResourceManager::load_shader(const std::string &vertex_shader_file,
   shaders[name] = load_shader_from_file(vertex_shader_file,
                                         fragment_shader_file,
                                         geometry_shader_file);
+  return shaders[name];
+}
+
+std::shared_ptr<Shader>
+ResourceManager::load_shader(const std::string &vertex_shader_file,
+                             const std::string &fragment_shader_file,
+                             const std::string &name)
+{
+  shaders[name] =
+      load_shader_from_file(vertex_shader_file, fragment_shader_file);
   return shaders[name];
 }
 
@@ -55,8 +70,17 @@ ResourceManager::load_shader_from_file(const std::string &vertex_shader_file,
   std::string fragment_code;
   std::string geometry_code;
 
-  std::ifstream vertex_shader_file_stream(vertex_shader_file);
-  std::ifstream fragment_shader_file_stream(fragment_shader_file);
+  std::ifstream vertex_shader_file_stream(
+      (resources_directory + "/" + vertex_shader_file));
+
+  Log().i(LOG_TAG) << "Load vertex shader from file: "
+                   << (resources_directory + "/" + vertex_shader_file);
+
+  std::ifstream fragment_shader_file_stream(
+      (resources_directory + "/" + fragment_shader_file));
+
+  Log().i(LOG_TAG) << "Load fragment shader from file: "
+                   << (resources_directory + "/" + fragment_shader_file);
 
   std::stringstream vertex_shader_stream, fragment_shader_stream;
   // read file's buffer contents into streams
@@ -69,9 +93,14 @@ ResourceManager::load_shader_from_file(const std::string &vertex_shader_file,
   vertex_code   = vertex_shader_stream.str();
   fragment_code = fragment_shader_stream.str();
   // if geometry shader path is present, also load a geometry shader
-  if (!geometry_shader_file.empty())
+  if (geometry_shader_file != "")
   {
-    std::ifstream     geometry_shader_file_stream(geometry_shader_file);
+    std::ifstream geometry_shader_file_stream(
+        (resources_directory + "/" + geometry_shader_file));
+
+    Log().i(LOG_TAG) << "Load geometry shader from file: "
+                     << (resources_directory + "/" + geometry_shader_file);
+
     std::stringstream geometry_shader_stream;
     geometry_shader_stream << geometry_shader_file_stream.rdbuf();
     geometry_shader_file_stream.close();
@@ -94,9 +123,15 @@ ResourceManager::load_texture_from_file(const std::string &file,
     image_format    = GL_RGBA;
   }
 
+  Log().i(LOG_TAG) << "Load texture from file: "
+                   << (resources_directory + "/" + file);
+
   int            width, height, nrChannels;
-  unsigned char *data =
-      stbi_load(file.c_str(), &width, &height, &nrChannels, 0);
+  unsigned char *data = stbi_load((resources_directory + "/" + file).c_str(),
+                                  &width,
+                                  &height,
+                                  &nrChannels,
+                                  0);
 
   const auto texture = std::make_shared<Texture2D>(width,
                                                    height,

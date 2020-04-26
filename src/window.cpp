@@ -44,7 +44,7 @@ Window::Window(const std::string &title,
 
 Window::~Window()
 {
-  renderer.teardown();
+  renderer->teardown();
   glfwDestroyWindow(window);
   glfwTerminate();
 }
@@ -56,7 +56,10 @@ void Window::init()
   initRenderer();
 }
 
-void Window::initRenderer() { renderer.init((GLADloadproc)glfwGetProcAddress); }
+void Window::initRenderer()
+{
+  renderer->init((GLADloadproc)glfwGetProcAddress);
+}
 
 void Window::initWindow()
 {

@@ -18,9 +18,13 @@ VertexArray::VertexArray(VertexArray &&vertex_array)
   vertex_array.id = 0;
 }
 
-VertexArray::~VertexArray() { glDeleteVertexArrays(1, &id); }
+VertexArray::~VertexArray()
+{
+  Log().d(LOG_TAG) << "Delete vertex array with id: " << id;
+  glDeleteVertexArrays(1, &id);
+}
 
-void VertexArray::add_buffer(const VertexBuffer &      vertex_buffer,
+void VertexArray::add_buffer(VertexBuffer              vertex_buffer,
                              const VertexBufferLayout &vertex_buffer_layout)
 {
   std::size_t offset = 0;

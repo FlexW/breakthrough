@@ -1,4 +1,7 @@
 #include "texture.hpp"
+#include "log.hpp"
+
+static const std::string LOG_TAG = "Texture2D";
 
 Texture2D::Texture2D(const unsigned       width,
                      const unsigned       height,
@@ -13,7 +16,11 @@ Texture2D::Texture2D(const unsigned       width,
   generate(data);
 }
 
-Texture2D::~Texture2D() { glDeleteTextures(1, &id); }
+Texture2D::~Texture2D()
+{
+  Log().d(LOG_TAG) << "Delete 2d texture with id: " << id;
+  glDeleteTextures(1, &id);
+}
 
 void Texture2D::generate(const unsigned char *data)
 {

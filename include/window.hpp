@@ -26,11 +26,11 @@ public:
   void setShouldClose(bool value);
 
 protected:
-  const std::string title;
-  int               windowWidth  = 1280;
-  int               windowHeight = 720;
-  double            deltaTime    = 0.;
-  Renderer          renderer;
+  const std::string         title;
+  int                       windowWidth  = 1280;
+  int                       windowHeight = 720;
+  double                    deltaTime    = 0.;
+  std::shared_ptr<Renderer> renderer;
 
   virtual void onWindowFramebufferSize(int width, int height);
 

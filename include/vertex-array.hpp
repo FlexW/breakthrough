@@ -14,7 +14,7 @@ public:
 
   ~VertexArray();
 
-  void add_buffer(const VertexBuffer &      vertex_buffer,
+  void add_buffer(VertexBuffer              vertex_buffer,
                   const VertexBufferLayout &vertex_buffer_layout);
   void bind() const;
 

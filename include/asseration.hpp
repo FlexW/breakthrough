@@ -2,13 +2,9 @@
 
 #include <iostream>
 
-void _assert_failed(const char *expr, const char *file, unsigned line)
-{
-  std::cout << "Asseration failed in " << file << " on line " << line << ":"
-            << expr << std::endl;
-}
+void assert_failed(const char *expr, const char *file, unsigned line);
 
-#define FAIL_WITH_MESSAGE(message)                                             \
+#define MY_FAIL_WITH_MESSAGE(message)                                          \
   do                                                                           \
   {                                                                            \
     std::cerr << "Asseration failed in " << __FILE__ << " on line "            \
@@ -25,5 +21,4 @@ void _assert_failed(const char *expr, const char *file, unsigned line)
   while (0)
 
 #define ASSERT(expr)                                                           \
-  (static_cast<bool>(expr) ? void(0)                                           \
-                           : _assert_failed(#expr, __FILE__, __LINE__))
+  (static_cast<bool>(expr) ? void(0) : assert_failed(#expr, __FILE__, __LINE__))

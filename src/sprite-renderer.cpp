@@ -1,5 +1,7 @@
 #include "sprite-renderer.hpp"
 
+static const std::string LOG_TAG = "SpriteRenderer";
+
 SpriteRenderer::SpriteRenderer(const std::shared_ptr<Renderer> renderer,
                                const std::shared_ptr<Shader>   shader)
     : renderer(renderer), shader(shader)

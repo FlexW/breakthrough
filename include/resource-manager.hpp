@@ -18,8 +18,13 @@ public:
   static std::shared_ptr<Shader>
   load_shader(const std::string &vertex_shader_file,
               const std::string &fragment_shader_file,
-              const std::string &name,
-              const std::string &geometry_shader_file = "");
+              const std::string &geometry_shader_file,
+              const std::string &name);
+
+  static std::shared_ptr<Shader>
+  load_shader(const std::string &vertex_shader_file,
+              const std::string &fragment_shader_file,
+              const std::string &name);
 
   static std::shared_ptr<Shader> get_shader(const std::string &name);
 
@@ -32,6 +37,8 @@ public:
   static void clear();
 
 private:
+  static const std::string resources_directory;
+
   ResourceManager()                   = delete;
   ~ResourceManager()                  = delete;
   ResourceManager(ResourceManager &)  = delete;

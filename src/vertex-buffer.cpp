@@ -1,5 +1,8 @@
 #include "vertex-buffer.hpp"
+#include "log.hpp"
 #include "renderer.hpp"
+
+static const std::string LOG_TAG = "VertexBuffer";
 
 VertexBuffer::VertexBuffer(const std::vector<Vertex2D> &data)
     : count(data.size()), data(data)
@@ -35,7 +38,20 @@ void VertexBuffer::operator=(const VertexBuffer &vertex_buffer)
   id    = vertex_buffer.id;
 }
 
-VertexBuffer::~VertexBuffer() { glDeleteBuffers(1, &id); }
+void VertexBuffer::operator=(VertexBuffer &&vertex_buffer)
+{
+  data  = vertex_buffer.data;
+  count = vertex_buffer.count;
+  id    = vertex_buffer.id;
+
+  vertex_buffer.id = 0;
+}
+
+VertexBuffer::~VertexBuffer()
+{
+  Log().d(LOG_TAG) << "Delete vertex buffer with id: " << id;
+  glDeleteBuffers(1, &id);
+}
 
 void VertexBuffer::bind() const { glBindBuffer(GL_ARRAY_BUFFER, id); }
 

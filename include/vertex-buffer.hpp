@@ -22,6 +22,8 @@ public:
 
   void operator=(const VertexBuffer &vertex_buffer);
 
+  void operator=(VertexBuffer &&vertex_buffer);
+
   ~VertexBuffer();
 
   void bind() const;
@@ -32,8 +34,10 @@ public:
 
   unsigned get_count() const;
 
+  unsigned get_id() const { return id; }
+
 private:
-  unsigned int        id    = 0;
-  unsigned int        count = 0;
+  unsigned int          id    = 0;
+  unsigned int          count = 0;
   std::vector<Vertex2D> data;
 };

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "sprite-renderer.hpp"
 #include "window.hpp"
 
 enum class GameState
@@ -34,4 +35,7 @@ protected:
   void render();
 
   void init();
+
+private:
+  std::unique_ptr<SpriteRenderer> sprite_renderer;
 };
