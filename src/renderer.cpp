@@ -8,6 +8,11 @@ void Renderer::draw(const VertexArray &vertex_array) const
   glDrawArrays(GL_TRIANGLES, 0, vertex_array.get_count());
 }
 
+void Renderer::blend_func(GLenum sfactor, GLenum dfactor)
+{
+  glBlendFunc(sfactor, dfactor);
+}
+
 void Renderer::clear(GLbitfield flags) { glClear(flags); }
 
 void Renderer::clear_color(float red, float green, float blue, float alpha)

@@ -38,6 +38,11 @@ ResourceManager::load_shader(const std::string &vertex_shader_file,
 
 std::shared_ptr<Shader> ResourceManager::get_shader(const std::string &name)
 {
+  if (shaders.find(name) == shaders.end())
+  {
+    throw std::runtime_error("Shader " + name + " not found");
+  }
+
   return shaders[name];
 }
 
@@ -52,6 +57,11 @@ ResourceManager::load_texture(const std::string &file,
 
 std::shared_ptr<Texture2D> ResourceManager::get_texture(const std::string &name)
 {
+  if (textures.find(name) == textures.end())
+  {
+    throw std::runtime_error("Texture " + name + " not found");
+  }
+
   return textures[name];
 }
 

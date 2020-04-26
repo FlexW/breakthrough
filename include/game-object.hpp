@@ -40,6 +40,8 @@ public:
 
   void set_destroyed(bool destroyed) { this->destroyed = destroyed; }
 
+  glm::vec2 get_velocity() const { return velocity; }
+
 protected:
   glm::vec2 position, size, velocity;
 

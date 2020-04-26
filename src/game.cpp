@@ -18,6 +18,7 @@ void Game::init()
   configure_shaders();
   init_sprite_renderer();
   load_textures();
+  init_particle_generator();
   load_levels();
   configure_game_objects();
 }
@@ -84,6 +85,10 @@ void Game::update(float delta_time)
 {
   ball->move(delta_time, window_width);
   update_collisions();
+  particle_generator->update(delta_time,
+                             *ball,
+                             2,
+                             glm::vec2(ball->get_radius() / 2.0f));
 
   // Did ball reach bottom edge?
   if (ball->get_position().y >= window_height)
@@ -111,6 +116,8 @@ void Game::render()
     // Draw player
     player->draw(sprite_renderer);
 
+    particle_generator->draw();
+
     // Draw ball
     ball->draw(sprite_renderer);
   }
@@ -133,6 +140,7 @@ void Game::load_textures()
                                 false,
                                 "block_solid");
   ResourceManager::load_texture("textures/paddle.png", true, "paddle");
+  ResourceManager::load_texture("textures/particle.png", true, "particle");
 }
 
 void Game::load_shaders()
@@ -140,6 +148,10 @@ void Game::load_shaders()
   ResourceManager::load_shader("shaders/sprite/sprite.vert",
                                "shaders/sprite/sprite.frag",
                                "sprite");
+
+  ResourceManager::load_shader("shaders/particle/particle.vert",
+                               "shaders/particle/particle.frag",
+                               "particle");
 }
 
 void Game::configure_shaders()
@@ -151,10 +163,17 @@ void Game::configure_shaders()
                                             -1.0f,
                                             1.0f);
 
-  const auto shader = ResourceManager::get_shader("sprite");
+  auto shader = ResourceManager::get_shader("sprite");
   shader->bind();
   shader->setInt("image", 0);
   shader->setMat4("projection_matrix", projection_matrix);
+  shader->unbind();
+
+  shader = ResourceManager::get_shader("particle");
+  shader->bind();
+  shader->setInt("sprite", 0);
+  shader->setMat4("projection_matrix", projection_matrix);
+  shader->unbind();
 }
 
 void Game::init_sprite_renderer()
@@ -367,4 +386,13 @@ Direction Game::calc_vector_direction(const glm::vec2 target)
     }
   }
   return static_cast<Direction>(best_match);
+}
+
+void Game::init_particle_generator()
+{
+  particle_generator = std::make_unique<ParticleGenerator>(
+      ResourceManager::get_shader("particle"),
+      ResourceManager::get_texture("particle"),
+      500,
+      renderer);
 }

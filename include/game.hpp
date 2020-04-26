@@ -2,6 +2,7 @@
 
 #include "ball-object.hpp"
 #include "game-level.hpp"
+#include "particle-generator.hpp"
 #include "sprite-renderer.hpp"
 #include "window.hpp"
 
@@ -93,6 +94,8 @@ private:
 
   std::unique_ptr<BallObject> ball;
 
+  std::unique_ptr<ParticleGenerator> particle_generator;
+
   void load_textures();
 
   void load_shaders();
@@ -106,4 +109,6 @@ private:
   void configure_game_objects();
 
   Direction calc_vector_direction(const glm::vec2 target);
+
+  void init_particle_generator();
 };

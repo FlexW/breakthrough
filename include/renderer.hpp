@@ -15,6 +15,8 @@ class Renderer
 public:
   void draw(const VertexArray &vertex_array) const;
 
+  void blend_func(GLenum sfactor, GLenum dfactor);
+
   void clear(GLbitfield flags);
 
   void clear_color(float red, float green, float blue, float alpha);
