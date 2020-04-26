@@ -36,9 +36,10 @@ public:
 
   glm::vec2 get_size() { return size; }
 
-private:
+protected:
   glm::vec2 position, size, velocity;
 
+private:
   glm::vec3 color;
 
   float rotation;

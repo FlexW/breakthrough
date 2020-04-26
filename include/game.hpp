@@ -1,5 +1,6 @@
 #pragma once
 
+#include "ball-object.hpp"
 #include "game-level.hpp"
 #include "sprite-renderer.hpp"
 #include "window.hpp"
@@ -14,6 +15,10 @@ enum class GameState
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 
 const float PLAYER_VELOCITY(500.0f);
+
+const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
+
+const float BALL_RADIUS = 12.5f;
 
 /**
  * @brief Represents the game.
@@ -53,6 +58,8 @@ private:
 
   std::unique_ptr<GameObject> player;
 
+  std::unique_ptr<BallObject> ball;
+
   void load_textures();
 
   void load_shaders();
@@ -63,5 +70,5 @@ private:
 
   void load_levels();
 
-  void configure_player();
+  void configure_game_objects();
 };
