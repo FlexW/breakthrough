@@ -2,35 +2,36 @@
 
 #include "renderer.hpp"
 
-void Renderer::draw( // const Mesh &mesh, const std::shared_ptr<Shader> shader
-) const
+void Renderer::draw(const VertexArray &vertex_array) const
 {
+  vertex_array.bind();
+  glDrawArrays(GL_TRIANGLES, 0, vertex_array.get_count());
 }
 
 void Renderer::clear(GLbitfield flags) { glClear(flags); }
 
-void Renderer::clearColor(float red, float green, float blue, float alpha)
+void Renderer::clear_color(float red, float green, float blue, float alpha)
 {
   glClearColor(red, green, blue, alpha);
 }
 
-void Renderer::setViewport(const int         x,
-                           const int         y,
-                           const std::size_t width,
-                           const std::size_t height) const
+void Renderer::set_viewport(const int         x,
+                            const int         y,
+                            const std::size_t width,
+                            const std::size_t height) const
 {
   glViewport(x, y, width, height);
 }
 
 void Renderer::init(GLADloadproc loadProc)
 {
-  initGlad(loadProc);
+  init_glad(loadProc);
   setup();
 }
 
 void Renderer::teardown() {}
 
-void Renderer::initGlad(GLADloadproc loadProc)
+void Renderer::init_glad(GLADloadproc loadProc)
 {
   if (!gladLoadGLLoader(loadProc))
   {
