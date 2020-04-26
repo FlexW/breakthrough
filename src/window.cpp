@@ -3,33 +3,33 @@
 #include "asseration.hpp"
 #include "window.hpp"
 
-void windowFramebufferSizeCallback(GLFWwindow *window, int width, int height)
+void window_framebuffer_size_callback(GLFWwindow *window, int width, int height)
 {
   auto w = static_cast<Window *>(glfwGetWindowUserPointer(window));
 
   ASSERT(w);
 
-  w->onWindowFramebufferSize(width, height);
+  w->on_window_framebuffer_size(width, height);
 }
 
-void mouseMovementCallback(GLFWwindow *window, double xpos, double ypos)
+void mouse_movement_callback(GLFWwindow *window, double xpos, double ypos)
 {
   auto w = static_cast<Window *>(glfwGetWindowUserPointer(window));
 
   ASSERT(w);
 
-  w->onMouseMovement(xpos, ypos);
+  w->on_mouse_movement(xpos, ypos);
 }
 
-void Window::onWindowFramebufferSize(int width, int height)
+void Window::on_window_framebuffer_size(int width, int height)
 {
-  windowHeight = height;
-  windowWidth  = width;
+  window_height = height;
+  window_width  = width;
 }
 
-void Window::onMouseMovement(double, double) {}
+void Window::on_mouse_movement(double, double) {}
 
-void Window::setShouldClose(bool value)
+void Window::set_should_close(bool value)
 {
   glfwSetWindowShouldClose(window, value);
 }
@@ -37,7 +37,9 @@ void Window::setShouldClose(bool value)
 Window::Window(const std::string &title,
                const unsigned     width,
                const unsigned     height)
-    : title(title), windowWidth(width), windowHeight(height)
+    : title(title),
+      window_width(width),
+      window_height(height)
 {
   init();
 }
@@ -51,7 +53,7 @@ Window::~Window()
 
 void Window::init()
 {
-  startTime = getCurrentTimeMillis();
+  start_time = get_current_time_millis();
   initWindow();
   initRenderer();
 }
@@ -70,11 +72,14 @@ void Window::initWindow()
   glfwWindowHint(GLFW_SAMPLES, 16);
 
   GLFWmonitor *monitor = NULL;
-  if (isFullscreen)
+  if (fullscreen)
     monitor = glfwGetPrimaryMonitor();
 
-  window =
-      glfwCreateWindow(windowWidth, windowHeight, title.c_str(), monitor, NULL);
+  window = glfwCreateWindow(window_width,
+                            window_height,
+                            title.c_str(),
+                            monitor,
+                            NULL);
 
   if (!window)
   {
@@ -84,14 +89,14 @@ void Window::initWindow()
   glfwSetWindowUserPointer(window, this);
 
   glfwMakeContextCurrent(window);
-  glfwSetFramebufferSizeCallback(window, windowFramebufferSizeCallback);
-  glfwSetCursorPosCallback(window, mouseMovementCallback);
+  glfwSetFramebufferSizeCallback(window, window_framebuffer_size_callback);
+  glfwSetCursorPosCallback(window, mouse_movement_callback);
   glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 }
 
-int Window::getKey(int key) { return glfwGetKey(window, key); }
+int Window::get_key(int key) { return glfwGetKey(window, key); }
 
-int Window::getMouseButton(int button)
+int Window::get_mouse_button(int button)
 {
   return glfwGetMouseButton(window, button);
 }
@@ -101,7 +106,7 @@ void Window::show()
   while (!glfwWindowShouldClose(window))
   {
     calcDeltaTime();
-    ++framesCount;
+    ++frames_count;
 
     draw();
 
@@ -115,11 +120,11 @@ void Window::draw() {}
 void Window::calcDeltaTime()
 {
   float currentFrame = glfwGetTime();
-  deltaTime          = currentFrame - lastFrame;
-  lastFrame          = currentFrame;
+  delta_time         = currentFrame - last_frame;
+  last_frame         = currentFrame;
 }
 
-double Window::getCurrentTimeMillis()
+double Window::get_current_time_millis()
 {
   timeval t;
   gettimeofday(&t, NULL);
@@ -128,8 +133,8 @@ double Window::getCurrentTimeMillis()
   return static_cast<double>(ret);
 }
 
-double Window::getRunningTime()
+double Window::get_running_time()
 {
-  const auto runningTime = (getCurrentTimeMillis() - startTime) / 1000.0;
+  const auto runningTime = (get_current_time_millis() - start_time) / 1000.0;
   return runningTime;
 }

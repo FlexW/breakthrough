@@ -4,9 +4,11 @@
 
 #include "renderer.hpp"
 
-void windowFramebufferSizeCallback(GLFWwindow *window, int width, int height);
+void window_framebuffer_size_callback(GLFWwindow *window,
+                                      int         width,
+                                      int         height);
 
-void mouseMovementCallback(GLFWwindow *window, double xpos, double ypos);
+void mouse_movement_callback(GLFWwindow *window, double xpos, double ypos);
 
 class Window
 {
@@ -17,44 +19,44 @@ public:
 
   virtual ~Window();
 
-  int getKey(int key);
+  int get_key(int key);
 
-  int getMouseButton(int button);
+  int get_mouse_button(int button);
 
   void show();
 
-  void setShouldClose(bool value);
+  void set_should_close(bool value);
 
 protected:
   const std::string         title;
-  int                       windowWidth  = 1280;
-  int                       windowHeight = 720;
-  double                    deltaTime    = 0.;
+  int                       window_width  = 1280;
+  int                       window_height = 720;
+  double                    delta_time    = 0.;
   std::shared_ptr<Renderer> renderer;
 
-  virtual void onWindowFramebufferSize(int width, int height);
+  virtual void on_window_framebuffer_size(int width, int height);
 
-  virtual void onMouseMovement(double xpos, double ypos);
+  virtual void on_mouse_movement(double xpos, double ypos);
 
   virtual void draw();
 
-  double getRunningTime();
+  double get_running_time();
 
-  double getCurrentTimeMillis();
+  double get_current_time_millis();
 
-  double             lastFrame   = 0.;
-  double             startTime   = 0;
-  unsigned long long framesCount = 0;
+  double             last_frame   = 0.;
+  double             start_time   = 0;
+  unsigned long long frames_count = 0;
 
 private:
-  GLFWwindow *window       = nullptr;
-  bool        isFullscreen = false;
+  GLFWwindow *window     = nullptr;
+  bool        fullscreen = false;
 
   friend void
-  windowFramebufferSizeCallback(GLFWwindow *window, int width, int height);
+  window_framebuffer_size_callback(GLFWwindow *window, int width, int height);
 
   friend void
-  mouseMovementCallback(GLFWwindow *window, double xpos, double ypos);
+  mouse_movement_callback(GLFWwindow *window, double xpos, double ypos);
 
   void init();
 

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game-level.hpp"
 #include "sprite-renderer.hpp"
 #include "window.hpp"
 
@@ -10,6 +11,17 @@ enum class GameState
   GAME_WIN
 };
 
+const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
+
+const float PLAYER_VELOCITY(500.0f);
+
+/**
+ * @brief Represents the game.
+ *
+ * Game holds all game-related state and functionality. Combines all
+ * game-related data into a single class for easy access to each of
+ * the components and manageability.
+ */
 class Game : public Window
 {
 public:
@@ -22,11 +34,7 @@ public:
   void draw() override;
 
 protected:
-  GameState state;
-
-  bool keys[1024];
-
-  bool keys_processed[1024];
+  GameState game_state;
 
   void process_input(float delta_time);
 
@@ -37,5 +45,23 @@ protected:
   void init();
 
 private:
-  std::unique_ptr<SpriteRenderer> sprite_renderer;
+  std::shared_ptr<SpriteRenderer> sprite_renderer;
+
+  std::vector<GameLevel> game_levels;
+
+  unsigned level = 0;
+
+  std::unique_ptr<GameObject> player;
+
+  void load_textures();
+
+  void load_shaders();
+
+  void configure_shaders();
+
+  void init_sprite_renderer();
+
+  void load_levels();
+
+  void configure_player();
 };
