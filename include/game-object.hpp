@@ -30,11 +30,15 @@ public:
 
   bool is_solid() const { return solid; }
 
-  glm::vec2 get_position() { return position; }
+  glm::vec2 get_position() const { return position; }
 
   void set_position(const glm::vec2 &position) { this->position = position; }
 
-  glm::vec2 get_size() { return size; }
+  glm::vec2 get_size() const { return size; }
+
+  void set_size(const glm::vec2 &size) { this->size = size; }
+
+  void set_destroyed(bool destroyed) { this->destroyed = destroyed; }
 
 protected:
   glm::vec2 position, size, velocity;

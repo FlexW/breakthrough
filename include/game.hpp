@@ -12,6 +12,29 @@ enum class GameState
   GAME_WIN
 };
 
+enum class Direction
+{
+  UP    = 0,
+  RIGHT = 1,
+  DOWN  = 2,
+  LEFT  = 3
+};
+
+class Collision
+{
+public:
+  Collision(bool            is_collision,
+            const Direction direction,
+            const glm::vec2 difference_center_closest_point)
+      : is_collision(is_collision),
+        direction(direction),
+        difference_center_closest_point(difference_center_closest_point){};
+
+  const bool      is_collision;
+  const Direction direction;
+  const glm::vec2 difference_center_closest_point;
+};
+
 const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
 
 const float PLAYER_VELOCITY(500.0f);
@@ -49,6 +72,16 @@ protected:
 
   void init();
 
+  void update_collisions();
+
+  bool check_collision(const GameObject &one, const GameObject &two);
+
+  Collision check_collision(const BallObject &one, const GameObject &two);
+
+  void reset_level();
+
+  void reset_player();
+
 private:
   std::shared_ptr<SpriteRenderer> sprite_renderer;
 
@@ -71,4 +104,6 @@ private:
   void load_levels();
 
   void configure_game_objects();
+
+  Direction calc_vector_direction(const glm::vec2 target);
 };

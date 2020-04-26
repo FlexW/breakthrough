@@ -13,7 +13,8 @@ BallObject::BallObject(const glm::vec2 &                pos,
                  glm::vec3(1.0f),
                  velocity),
       radius(radius),
-      stuck(true)
+      stuck(true),
+      velocity(velocity)
 {
 }
 

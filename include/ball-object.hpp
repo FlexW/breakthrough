@@ -20,7 +20,14 @@ public:
 
   bool is_stuck() const { return stuck; }
 
+  float get_radius() const { return radius; }
+
+  void set_velocity(const glm::vec2 &velocity) { this->velocity = velocity; }
+
+  glm::vec2 get_velocity() const { return velocity; }
+
 private:
-  float radius;
-  bool  stuck;
+  float     radius;
+  bool      stuck;
+  glm::vec2 velocity;
 };

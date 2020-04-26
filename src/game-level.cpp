@@ -51,7 +51,13 @@ void GameLevel::load_from_file(const std::string &file,
     }
 
     if (tile_data.size() > 0)
+    {
+      this->tile_data    = tile_data;
+      this->level_width  = level_width;
+      this->level_height = level_height;
+
       init(tile_data, level_width, level_height);
+    }
   }
 }
 
@@ -126,4 +132,15 @@ void GameLevel::init(std::vector<std::vector<unsigned int>> tile_data,
       }
     }
   }
+}
+
+void GameLevel::reset()
+{
+  for (auto &brick : bricks)
+  {
+    brick.set_destroyed(false);
+  }
+
+  if (tile_data.size() > 0)
+    init(tile_data, level_width, level_height);
 }

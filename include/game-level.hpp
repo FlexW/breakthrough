@@ -30,8 +30,17 @@ public:
    */
   bool is_completed();
 
+  std::vector<GameObject> &get_bricks() { return bricks; }
+
+  void reset();
+
 private:
   std::vector<GameObject> bricks;
+
+  std::vector<std::vector<unsigned>> tile_data;
+
+  unsigned level_width  = 0;
+  unsigned level_height = 0;
 
   void load_from_file(const std::string &file,
                       unsigned           level_width,
