@@ -4,6 +4,7 @@
 #include "game-level.hpp"
 #include "particle-generator.hpp"
 #include "post-processor.hpp"
+#include "power-up.hpp"
 #include "sprite-renderer.hpp"
 #include "window.hpp"
 
@@ -84,6 +85,12 @@ protected:
 
   void reset_player();
 
+  void spawn_power_ups(GameObject &block);
+
+  void update_power_ups(float delta_time);
+
+  bool power_up_should_spawn(unsigned chance);
+
 private:
   std::shared_ptr<SpriteRenderer> sprite_renderer;
 
@@ -93,6 +100,8 @@ private:
 
   float shake_time = 0.0f;
 
+  std::vector<PowerUp> power_ups;
+
   std::unique_ptr<GameObject> player;
 
   std::unique_ptr<BallObject> ball;
@@ -100,6 +109,13 @@ private:
   std::unique_ptr<ParticleGenerator> particle_generator;
 
   std::unique_ptr<PostProcessor> post_processor;
+
+  std::shared_ptr<Texture2D> texture_speed       = nullptr;
+  std::shared_ptr<Texture2D> texture_sticky      = nullptr;
+  std::shared_ptr<Texture2D> texture_passthrough = nullptr;
+  std::shared_ptr<Texture2D> texture_increase    = nullptr;
+  std::shared_ptr<Texture2D> texture_confuse     = nullptr;
+  std::shared_ptr<Texture2D> texture_chaos       = nullptr;
 
   void load_textures();
 
@@ -118,4 +134,9 @@ private:
   void init_particle_generator();
 
   void init_post_processor();
+
+  void activate_power_up(PowerUp &power_up);
+
+  bool is_other_power_up_active(const std::vector<PowerUp> &power_ups,
+                                const PowerUp::Type         type) const;
 };

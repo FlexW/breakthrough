@@ -1,6 +1,10 @@
-#include "game.hpp"
+#include <algorithm>
+
 #include "asseration.hpp"
+#include "game.hpp"
 #include "resource-manager.hpp"
+
+static const std::string LOG_TAG = "Game";
 
 Game::Game(unsigned width, unsigned height)
     : Window("Breaktrough", width, height),
@@ -103,6 +107,8 @@ void Game::update(float delta_time)
                              2,
                              glm::vec2(ball->get_radius() / 2.0f));
 
+  update_power_ups(delta_time);
+
   // Reduce shake time
   if (shake_time > 0.0f)
   {
@@ -141,6 +147,11 @@ void Game::render()
       // Draw player
       player->draw(sprite_renderer);
 
+      // Draw power ups
+      for (auto &power_up : power_ups)
+        if (!power_up.is_destroyed())
+          power_up.draw(sprite_renderer);
+
       particle_generator->draw();
 
       // Draw ball
@@ -169,6 +180,30 @@ void Game::load_textures()
                                 "block_solid");
   ResourceManager::load_texture("textures/paddle.png", true, "paddle");
   ResourceManager::load_texture("textures/particle.png", true, "particle");
+  texture_speed = ResourceManager::load_texture("textures/powerup_speed.png",
+                                                true,
+                                                "powerup_speed");
+  texture_confuse =
+      ResourceManager::load_texture("textures/powerup_confuse.png",
+                                    true,
+                                    "powerup_confuse");
+  texture_increase =
+      ResourceManager::load_texture("textures/powerup_increase.png",
+                                    true,
+                                    "powerup_increase");
+
+  texture_passthrough =
+      ResourceManager::load_texture("textures/powerup_passthrough.png",
+                                    true,
+                                    "powerup_passthrough");
+
+  texture_chaos = ResourceManager::load_texture("textures/powerup_chaos.png",
+                                                true,
+                                                "powerup_chaos");
+
+  texture_sticky = ResourceManager::load_texture("textures/powerup_chaos.png",
+                                                 true,
+                                                 "powerup_sticky");
 }
 
 void Game::load_shaders()
@@ -262,6 +297,7 @@ void Game::update_collisions()
         if (!box.is_solid())
         {
           box.set_destroyed(true);
+          spawn_power_ups(box);
         }
         else
         {
@@ -272,52 +308,79 @@ void Game::update_collisions()
         // collision resolution
         const auto dir         = collision.direction;
         const auto diff_vector = collision.difference_center_closest_point;
-        // horizontal collision
-        if (dir == Direction::LEFT || dir == Direction::RIGHT)
+        // horizontal collision, don't do collision resolution on
+        // non-solid bricks if pass-through is activated
+        if (!(ball->is_pass_through() && !box.is_solid()))
         {
-          const auto ball_velocity = ball->get_velocity();
-          // reverse horizontal velocity
-          ball->set_velocity(glm::vec2(-ball_velocity.x, ball_velocity.y));
-          // relocate
-          const auto penetration = ball->get_radius() - std::abs(diff_vector.x);
-          const auto ball_position = ball->get_position();
-          if (dir == Direction::LEFT)
+          if (dir == Direction::LEFT || dir == Direction::RIGHT)
           {
-            // move ball to right
-            ball->set_position(
-                glm::vec2(ball_position.x + penetration, ball_position.y));
+            const auto ball_velocity = ball->get_velocity();
+            // reverse horizontal velocity
+            ball->set_velocity(glm::vec2(-ball_velocity.x, ball_velocity.y));
+            // relocate
+            const auto penetration =
+                ball->get_radius() - std::abs(diff_vector.x);
+            const auto ball_position = ball->get_position();
+            if (dir == Direction::LEFT)
+            {
+              // move ball to right
+              ball->set_position(
+                  glm::vec2(ball_position.x + penetration, ball_position.y));
+            }
+            else
+            {
+              // move ball to left;
+              ball->set_position(
+                  glm::vec2(ball_position.x - penetration, ball_position.y));
+            }
           }
-          else
+          else // vertical collision
           {
-            // move ball to left;
-            ball->set_position(
-                glm::vec2(ball_position.x - penetration, ball_position.y));
-          }
-        }
-        else // vertical collision
-        {
-          const auto ball_velocity = ball->get_velocity();
-          ball->set_velocity(glm::vec2(ball_velocity.x, -ball_velocity.y));
-          // relocate
-          const auto penetration = ball->get_radius() - std::abs(diff_vector.y);
-          const auto ball_position = ball->get_position();
-          if (dir == Direction::UP)
-          {
-            // move ball back up
-            ball->set_position(
-                glm::vec2(ball_position.x, ball_position.y - penetration));
-          }
+            const auto ball_velocity = ball->get_velocity();
+            ball->set_velocity(glm::vec2(ball_velocity.x, -ball_velocity.y));
+            // relocate
+            const auto penetration =
+                ball->get_radius() - std::abs(diff_vector.y);
+            const auto ball_position = ball->get_position();
+            if (dir == Direction::UP)
+            {
+              // move ball back up
+              ball->set_position(
+                  glm::vec2(ball_position.x, ball_position.y - penetration));
+            }
 
-          else
-          {
-            // move ball back down
-            ball->set_position(
-                glm::vec2(ball_position.x, ball_position.y + penetration));
+            else
+            {
+              // move ball back down
+              ball->set_position(
+                  glm::vec2(ball_position.x, ball_position.y + penetration));
+            }
           }
         }
       }
     }
   }
+
+  // also check collisions on PowerUps and if so, activate them
+  for (auto &power_up : power_ups)
+  {
+    if (!power_up.is_destroyed())
+    {
+      // first check if powerup passed bottom edge, if so: keep as
+      // inactive and destroy
+      if (power_up.get_position().y >= window_height)
+        power_up.set_destroyed(true);
+
+      if (check_collision(*player, power_up))
+      {
+        // collided with player, now activate powerup
+        activate_power_up(power_up);
+        power_up.set_destroyed(true);
+        power_up.set_activated(true);
+      }
+    }
+  }
+
   // check collisions for player pad (unless stuck)
   const auto result = check_collision(*ball, *player);
   if (!ball->is_stuck() && result.is_collision)
@@ -345,6 +408,22 @@ void Game::update_collisions()
     // fix sticky paddle
     ball->set_velocity(glm::vec2(ball->get_velocity().x,
                                  -1.0f * glm::abs(ball->get_velocity().y)));
+  }
+
+  for (auto &power_up : power_ups)
+  {
+    if (!power_up.is_destroyed())
+    {
+      if (power_up.get_position().y >= window_height)
+        power_up.set_destroyed(true);
+      if (check_collision(*player, power_up))
+      {
+        // collided with player, now activate powerup
+        activate_power_up(power_up);
+        power_up.set_destroyed(true);
+        power_up.set_activated(true);
+      }
+    }
   }
 }
 
@@ -398,11 +477,17 @@ void Game::reset_player()
   player->set_size(PLAYER_SIZE);
   player->set_position(glm::vec2(window_width / 2.0f - PLAYER_SIZE.x / 2.0f,
                                  window_height - PLAYER_SIZE.y));
+  player->set_color(glm::vec4(1.0f));
 
   ball->reset(
       player->get_position() +
           glm::vec2(PLAYER_SIZE.x / 2.0f - BALL_RADIUS, -(BALL_RADIUS * 2.0f)),
       INITIAL_BALL_VELOCITY);
+  ball->set_sticky(false);
+
+  post_processor->set_chaos(false);
+  post_processor->set_shake(false);
+  post_processor->set_confuse(false);
 }
 
 Direction Game::calc_vector_direction(const glm::vec2 target)
@@ -448,4 +533,170 @@ void Game::init_post_processor()
       ResourceManager::get_shader("post-processing"),
       window_width,
       window_height);
+}
+
+void Game::spawn_power_ups(GameObject &block)
+{
+  if (power_up_should_spawn(75)) // 1 in 75 chance
+  {
+    Log().d(LOG_TAG) << "Spawn speed powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::SPEED,
+                                glm::vec3(0.5f, 0.5f, 1.0f),
+                                0.0f,
+                                block.get_position(),
+                                texture_speed));
+  }
+  if (power_up_should_spawn(75))
+  {
+    Log().d(LOG_TAG) << "Spawn sticky powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::STICKY,
+                                glm::vec3(1.0f, 0.5f, 1.0f),
+                                20.0f,
+                                block.get_position(),
+                                texture_sticky));
+  }
+  if (power_up_should_spawn(75))
+  {
+    Log().d(LOG_TAG) << "Spawn pass through powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::PASS_THROUGH,
+                                glm::vec3(0.5f, 1.0f, 0.5f),
+                                10.0f,
+                                block.get_position(),
+                                texture_passthrough));
+  }
+  if (power_up_should_spawn(75))
+  {
+    Log().d(LOG_TAG) << "Spawn increase powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::PAD_SIZE_INCREASE,
+                                glm::vec3(1.0f, 0.6f, 0.4),
+                                0.0f,
+                                block.get_position(),
+                                texture_increase));
+  }
+  if (power_up_should_spawn(15)) // negative powerups should spawn more often
+  {
+    Log().d(LOG_TAG) << "Spawn confuse powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::CONFUSE,
+                                glm::vec3(1.0f, 0.3f, 0.3f),
+                                15.0f,
+                                block.get_position(),
+                                texture_confuse));
+  }
+  if (power_up_should_spawn(15))
+  {
+    Log().d(LOG_TAG) << "Spawn chaos powerup";
+    power_ups.push_back(PowerUp(PowerUp::Type::CHAOS,
+                                glm::vec3(0.9f, 0.25f, 0.25f),
+                                15.0f,
+                                block.get_position(),
+                                texture_chaos));
+  }
+}
+
+void Game::update_power_ups(float delta_time)
+{
+  for (auto &power_up : power_ups)
+  {
+    power_up.set_position(glm::vec2(
+        power_up.get_position().x + power_up.get_velocity().x * delta_time,
+        power_up.get_position().y + power_up.get_velocity().y * delta_time));
+
+    if (power_up.is_activated())
+    {
+      power_up.set_duration(power_up.get_duration() - delta_time);
+
+      if (power_up.get_duration() <= 0.0f)
+      {
+        // remove powerup from list (will later be removed)
+        power_up.set_activated(false);
+        // deactivate effects
+        if (power_up.get_type() == PowerUp::Type::STICKY)
+        {
+          if (!is_other_power_up_active(power_ups, PowerUp::Type::STICKY))
+          { // only reset if no other PowerUp of type sticky is active
+            ball->set_sticky(false);
+            player->set_color(glm::vec3(1.0f));
+          }
+        }
+        else if (power_up.get_type() == PowerUp::Type::PASS_THROUGH)
+        {
+          if (!is_other_power_up_active(power_ups, PowerUp::Type::PASS_THROUGH))
+          { // only reset if no other PowerUp of type pass-through is active
+            ball->set_pass_through(false);
+            ball->set_color(glm::vec3(1.0f));
+          }
+        }
+        else if (power_up.get_type() == PowerUp::Type::CONFUSE)
+        {
+          if (!is_other_power_up_active(power_ups, PowerUp::Type::CONFUSE))
+          { // only reset if no other PowerUp of type confuse is active
+            post_processor->set_confuse(false);
+          }
+        }
+        else if (power_up.get_type() == PowerUp::Type::CHAOS)
+        {
+          if (!is_other_power_up_active(power_ups, PowerUp::Type::CHAOS))
+          { // only reset if no other PowerUp of type chaos is active
+            post_processor->set_chaos(false);
+          }
+        }
+      }
+    }
+  }
+  power_ups.erase(std::remove_if(power_ups.begin(),
+                                 power_ups.end(),
+                                 [](const PowerUp &power_up) {
+                                   return power_up.is_destroyed() &&
+                                          !power_up.is_activated();
+                                 }),
+                  power_ups.end());
+}
+
+bool Game::power_up_should_spawn(unsigned chance)
+{
+  unsigned int random = rand() % chance;
+  return random == 0;
+}
+
+void Game::activate_power_up(PowerUp &power_up)
+{
+  switch (power_up.get_type())
+  {
+  case PowerUp::Type::CHAOS:
+    post_processor->set_chaos(true);
+    break;
+  case PowerUp::Type::CONFUSE:
+    post_processor->set_confuse(true);
+    break;
+  case PowerUp::Type::PAD_SIZE_INCREASE:
+    player->set_size(
+        glm::vec2(player->get_size().x + 50, player->get_size().y));
+    break;
+  case PowerUp::Type::PASS_THROUGH:
+    ball->set_pass_through(true);
+    ball->set_color(glm::vec3(1.0f, 0.5f, 0.5f));
+    break;
+  case PowerUp::Type::SPEED:
+    ball->set_velocity(
+        glm::vec2(ball->get_velocity().x * 1.2, ball->get_velocity().y * 1.2));
+    break;
+  case PowerUp::Type::STICKY:
+    ball->set_sticky(true);
+    ball->set_color(glm::vec3(1.0f, 0.5f, 1.0f));
+    break;
+  default:
+    FAIL;
+  }
+}
+
+bool Game::is_other_power_up_active(const std::vector<PowerUp> &power_ups,
+                                    const PowerUp::Type         type) const
+{
+  for (const auto &power_up : power_ups)
+  {
+    if (power_up.is_activated())
+      if (power_up.get_type() == type)
+        return true;
+  }
+  return false;
 }

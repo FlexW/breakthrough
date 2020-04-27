@@ -50,5 +50,7 @@ void BallObject::reset(glm::vec2 position, glm::vec2 velocity)
 {
   this->position = position;
   this->velocity = velocity;
+  pass_through   = false;
+  sticky         = false;
   stuck          = true;
 }

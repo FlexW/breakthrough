@@ -49,6 +49,10 @@ public:
 
   void set_shake(bool shake) { this->shake = shake; }
 
+  void set_confuse(bool value) { confuse = value; }
+
+  void set_chaos(bool value) { chaos = value; }
+
 private:
   std::shared_ptr<Renderer> renderer;
 

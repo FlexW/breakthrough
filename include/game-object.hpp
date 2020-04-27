@@ -44,6 +44,8 @@ public:
 
   glm::vec2 get_velocity() const { return velocity; }
 
+  void set_color(glm::vec3 value) { color = value; }
+
 protected:
   glm::vec2 position, size, velocity;
 

@@ -26,8 +26,16 @@ public:
 
   glm::vec2 get_velocity() const { return velocity; }
 
+  void set_pass_through(bool value) { pass_through = value; }
+
+  bool is_pass_through() { return pass_through; }
+
+  void set_sticky(bool value) { sticky = value; }
+
 private:
   float     radius;
-  bool      stuck;
+  bool      stuck  = true;
+  bool      sticky = false;
   glm::vec2 velocity;
+  bool      pass_through = false;
 };
