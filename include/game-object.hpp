@@ -24,6 +24,8 @@ public:
              glm::vec3                  color    = glm::vec3(1.0f),
              glm::vec2                  velocity = glm::vec2(0.0f, 0.0f));
 
+  virtual ~GameObject() {}
+
   virtual void draw(std::shared_ptr<SpriteRenderer> renderer) const;
 
   bool is_destroyed() const { return destroyed; }

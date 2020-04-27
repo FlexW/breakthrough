@@ -13,7 +13,6 @@ Game::~Game() { ResourceManager::clear(); }
 
 void Game::init()
 {
-
   load_shaders();
   configure_shaders();
   init_sprite_renderer();
@@ -21,6 +20,7 @@ void Game::init()
   init_particle_generator();
   load_levels();
   configure_game_objects();
+  init_post_processor();
 }
 
 void Game::draw()
@@ -71,6 +71,19 @@ void Game::process_input(float delta_time)
       }
     }
 
+    if (get_key(GLFW_KEY_W))
+    {
+      level = (level + 1) % game_levels.size();
+    }
+
+    if (get_key(GLFW_KEY_S))
+    {
+      if (level > 0)
+        --level;
+      else
+        level = game_levels.size() - 1;
+    }
+
     // Release ball
     if (get_key(GLFW_KEY_SPACE))
     {
@@ -90,6 +103,16 @@ void Game::update(float delta_time)
                              2,
                              glm::vec2(ball->get_radius() / 2.0f));
 
+  // Reduce shake time
+  if (shake_time > 0.0f)
+  {
+    shake_time -= delta_time;
+    if (shake_time <= 0.0f)
+    {
+      post_processor->set_shake(false);
+    }
+  }
+
   // Did ball reach bottom edge?
   if (ball->get_position().y >= window_height)
   {
@@ -104,22 +127,27 @@ void Game::render()
   {
   case GameState::GAME_ACTIVE:
   {
-    // Draw background
-    sprite_renderer->draw_sprite(ResourceManager::get_texture("background"),
-                                 glm::vec2(0.0f, 0.0f),
-                                 glm::vec2(window_width, window_height),
-                                 0.0f);
+    post_processor->begin_render();
+    {
+      // Draw background
+      sprite_renderer->draw_sprite(ResourceManager::get_texture("background"),
+                                   glm::vec2(0.0f, 0.0f),
+                                   glm::vec2(window_width, window_height),
+                                   0.0f);
 
-    // Draw level
-    game_levels[level].draw(sprite_renderer);
+      // Draw level
+      game_levels[level].draw(sprite_renderer);
 
-    // Draw player
-    player->draw(sprite_renderer);
+      // Draw player
+      player->draw(sprite_renderer);
 
-    particle_generator->draw();
+      particle_generator->draw();
 
-    // Draw ball
-    ball->draw(sprite_renderer);
+      // Draw ball
+      ball->draw(sprite_renderer);
+    }
+    post_processor->end_render();
+    post_processor->render(static_cast<float>(get_time()));
   }
   default:;
   }
@@ -152,6 +180,10 @@ void Game::load_shaders()
   ResourceManager::load_shader("shaders/particle/particle.vert",
                                "shaders/particle/particle.frag",
                                "particle");
+
+  ResourceManager::load_shader("shaders/post-processing/post-processing.vert",
+                               "shaders/post-processing/post-processing.frag",
+                               "post-processing");
 }
 
 void Game::configure_shaders()
@@ -165,14 +197,14 @@ void Game::configure_shaders()
 
   auto shader = ResourceManager::get_shader("sprite");
   shader->bind();
-  shader->setInt("image", 0);
-  shader->setMat4("projection_matrix", projection_matrix);
+  shader->set_uniform("image", 0);
+  shader->set_uniform("projection_matrix", projection_matrix);
   shader->unbind();
 
   shader = ResourceManager::get_shader("particle");
   shader->bind();
-  shader->setInt("sprite", 0);
-  shader->setMat4("projection_matrix", projection_matrix);
+  shader->set_uniform("sprite", 0);
+  shader->set_uniform("projection_matrix", projection_matrix);
   shader->unbind();
 }
 
@@ -228,7 +260,15 @@ void Game::update_collisions()
       {
         // destroy block if not solid
         if (!box.is_solid())
+        {
           box.set_destroyed(true);
+        }
+        else
+        {
+          shake_time = 0.05f;
+          post_processor->set_shake(true);
+        }
+
         // collision resolution
         const auto dir         = collision.direction;
         const auto diff_vector = collision.difference_center_closest_point;
@@ -390,9 +430,22 @@ Direction Game::calc_vector_direction(const glm::vec2 target)
 
 void Game::init_particle_generator()
 {
+  // ASSERT(renderer);
+
   particle_generator = std::make_unique<ParticleGenerator>(
       ResourceManager::get_shader("particle"),
       ResourceManager::get_texture("particle"),
       500,
       renderer);
+}
+
+void Game::init_post_processor()
+{
+  // ASSERT(renderer);
+
+  post_processor = std::make_unique<PostProcessor>(
+      renderer,
+      ResourceManager::get_shader("post-processing"),
+      window_width,
+      window_height);
 }

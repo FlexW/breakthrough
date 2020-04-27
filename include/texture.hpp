@@ -10,14 +10,16 @@ public:
   Texture2D(const unsigned       width,
             const unsigned       height,
             const unsigned char *data,
-            const unsigned       internal_format,
-            const unsigned       image_format);
+            const unsigned       internal_format = GL_RGB,
+            const unsigned       image_format    = GL_RGB);
 
   ~Texture2D();
 
-  void bind() const;
+  void bind(unsigned slot = 0) const;
 
   void unbind() const;
+
+  unsigned get_id() { return id; }
 
 private:
   unsigned id = 0;

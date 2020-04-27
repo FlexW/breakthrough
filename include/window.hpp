@@ -44,6 +44,8 @@ protected:
 
   double get_current_time_millis();
 
+  double get_time();
+
   double             last_frame   = 0.;
   double             start_time   = 0;
   unsigned long long frames_count = 0;

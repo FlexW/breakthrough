@@ -28,6 +28,29 @@ void Renderer::set_viewport(const int         x,
   glViewport(x, y, width, height);
 }
 
+void Renderer::blit_framebuffer(int        srcx0,
+                                int        srcy0,
+                                int        srcx1,
+                                int        srcy1,
+                                int        dstx0,
+                                int        dsty0,
+                                int        dstx1,
+                                int        dsty1,
+                                GLbitfield mask,
+                                GLenum     filter)
+{
+  glBlitFramebuffer(srcx0,
+                    srcy0,
+                    srcx1,
+                    srcy1,
+                    dstx0,
+                    dsty0,
+                    dstx1,
+                    dsty1,
+                    mask,
+                    filter);
+}
+
 void Renderer::init(GLADloadproc loadProc)
 {
   init_glad(loadProc);

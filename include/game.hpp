@@ -3,6 +3,7 @@
 #include "ball-object.hpp"
 #include "game-level.hpp"
 #include "particle-generator.hpp"
+#include "post-processor.hpp"
 #include "sprite-renderer.hpp"
 #include "window.hpp"
 
@@ -90,11 +91,15 @@ private:
 
   unsigned level = 0;
 
+  float shake_time = 0.0f;
+
   std::unique_ptr<GameObject> player;
 
   std::unique_ptr<BallObject> ball;
 
   std::unique_ptr<ParticleGenerator> particle_generator;
+
+  std::unique_ptr<PostProcessor> post_processor;
 
   void load_textures();
 
@@ -111,4 +116,6 @@ private:
   Direction calc_vector_direction(const glm::vec2 target);
 
   void init_particle_generator();
+
+  void init_post_processor();
 };

@@ -30,8 +30,8 @@ void SpriteRenderer::draw_sprite(const std::shared_ptr<Texture2D> texture,
 
   model = glm::scale(model, glm::vec3(size, 1.0f));
 
-  shader->setMat4("model_matrix", model);
-  shader->setVec3("sprite_color", color);
+  shader->set_uniform("model_matrix", model);
+  shader->set_uniform("sprite_color", color);
 
   texture->bind();
 

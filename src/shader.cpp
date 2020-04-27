@@ -12,13 +12,13 @@ Shader::Shader(const std::string &vertexShaderProgram,
   auto vertexShaderCodeCStr = vertexShaderProgram.c_str();
   glShaderSource(vertexShaderId, 1, &vertexShaderCodeCStr, NULL);
   glCompileShader(vertexShaderId);
-  checkForCompileErrors(vertexShaderId, ShaderType::VERTEX);
+  check_for_compile_errors(vertexShaderId, ShaderType::VERTEX);
 
   fragmentShaderId            = glCreateShader(GL_FRAGMENT_SHADER);
   auto fragmentShaderCodeCStr = fragmentShaderProgram.c_str();
   glShaderSource(fragmentShaderId, 1, &fragmentShaderCodeCStr, NULL);
   glCompileShader(fragmentShaderId);
-  checkForCompileErrors(fragmentShaderId, ShaderType::FRAGMENT);
+  check_for_compile_errors(fragmentShaderId, ShaderType::FRAGMENT);
 
   id = glCreateProgram();
   glAttachShader(id, vertexShaderId);
@@ -30,19 +30,19 @@ Shader::Shader(const std::string &vertexShaderProgram,
     auto geometryShaderCodeCStr = geometryShaderProgram.c_str();
     glShaderSource(geometryShaderId, 1, &geometryShaderCodeCStr, NULL);
     glCompileShader(geometryShaderId);
-    checkForCompileErrors(geometryShaderId, ShaderType::GEOMETRY);
+    check_for_compile_errors(geometryShaderId, ShaderType::GEOMETRY);
     glAttachShader(id, geometryShaderId);
   }
 
   glLinkProgram(id);
-  checkForCompileErrors(id, ShaderType::PROGRAMM);
+  check_for_compile_errors(id, ShaderType::PROGRAMM);
 
   glDeleteShader(vertexShaderId);
   glDeleteShader(fragmentShaderId);
 }
 
-void Shader::checkForCompileErrors(const GLuint     shaderId,
-                                   const ShaderType shaderType)
+void Shader::check_for_compile_errors(const GLuint     shaderId,
+                                      const ShaderType shaderType)
 {
   GLint     success;
   const int infoLogSize = 1024;
@@ -59,7 +59,7 @@ void Shader::checkForCompileErrors(const GLuint     shaderId,
       glGetShaderInfoLog(shaderId, infoLogSize, NULL, infoLog);
 
       std::string message =
-          shaderTypeToString(shaderType) + " Shader Error:\n" + infoLog;
+          shader_type_to_string(shaderType) + " Shader Error:\n" + infoLog;
       throw std::runtime_error(message);
     }
     return;
@@ -71,7 +71,7 @@ void Shader::checkForCompileErrors(const GLuint     shaderId,
       glGetProgramInfoLog(shaderId, infoLogSize, NULL, infoLog);
 
       std::string message =
-          shaderTypeToString(shaderType) + " Shader Error:\n" + infoLog;
+          shader_type_to_string(shaderType) + " Shader Error:\n" + infoLog;
       Log().e(LOG_TAG) << message;
     }
     break;
@@ -81,7 +81,7 @@ void Shader::checkForCompileErrors(const GLuint     shaderId,
   }
 }
 
-std::string Shader::shaderTypeToString(ShaderType shaderType) const
+std::string Shader::shader_type_to_string(ShaderType shaderType) const
 {
   switch (shaderType)
   {

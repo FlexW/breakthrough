@@ -25,7 +25,19 @@ public:
                     const int         y,
                     const std::size_t width,
                     const std::size_t height) const;
+
   void init(GLADloadproc loadProc);
+
+  void blit_framebuffer(int        srcx0,
+                        int        srcy0,
+                        int        srcx1,
+                        int        srcy1,
+                        int        dstx0,
+                        int        dsty0,
+                        int        dstx1,
+                        int        dsty1,
+                        GLbitfield mask,
+                        GLenum     filter);
 
   void teardown();
 

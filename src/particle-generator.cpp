@@ -50,8 +50,8 @@ void ParticleGenerator::draw()
   {
     if (particle.life > 0.0f)
     {
-      shader->setVec2("offset", particle.position);
-      shader->setVec4("color", particle.color);
+      shader->set_uniform("offset", particle.position);
+      shader->set_uniform("color", particle.color);
       texture->bind();
 
       vertex_array.bind();

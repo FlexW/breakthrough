@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <string>
 #include <unordered_map>
 
@@ -7,8 +8,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "asseration.hpp"
 #include "log.hpp"
 
+/**
+ * @brief General purpose Shader class
+ *
+ * Handles creation and linking of shaders.
+ */
 class Shader
 {
 public:
@@ -28,7 +35,7 @@ public:
    *
    * @return Shader id
    */
-  unsigned int getId() const { return id; }
+  unsigned int get_id() const { return id; }
 
   /**
    * Binds the shader for rendering
@@ -46,10 +53,14 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setBool(const std::string &name, bool value)
+  void set_uniform(const std::string &name, bool value)
   {
-    glUniform1i(getUniformLocation(name), (int)value);
+    glUniform1i(get_uniform_location(name), (int)value);
   }
+  // void set_bool(const std::string &name, bool value)
+  // {
+  //   glUniform1i(getUniformLocation(name), (int)value);
+  // }
 
   /**
    * Sets a int variable for the shader
@@ -57,9 +68,34 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setInt(const std::string &name, int value)
+  void set_uniform(const std::string &name, int value)
   {
-    glUniform1i(getUniformLocation(name), value);
+    glUniform1i(get_uniform_location(name), value);
+  }
+
+  template <std::size_t SIZE>
+  void set_uniform(const std::string &name, std::array<float, SIZE> &values)
+  {
+    glUniform1fv(get_uniform_location(name),
+                 values.size(),
+                 reinterpret_cast<GLfloat *>(&values[0]));
+  }
+
+  template <std::size_t SIZE>
+  void set_uniform(const std::string &name, std::array<int, SIZE> &values)
+  {
+    glUniform1iv(get_uniform_location(name),
+                 values.size(),
+                 reinterpret_cast<GLint *>(&values[0]));
+  }
+
+  // FIXME: Handle ints?
+  template <std::size_t SIZE>
+  void set_uniform(const std::string &name, std::array<glm::vec2, SIZE> &values)
+  {
+    glUniform1fv(get_uniform_location(name),
+                 values.size(),
+                 reinterpret_cast<GLfloat *>(&values[0]));
   }
 
   /**
@@ -68,9 +104,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setFloat(const std::string &name, float value) const
+  void set_uniform(const std::string &name, float value)
   {
-    glUniform1f(glGetUniformLocation(id, name.c_str()), value);
+    glUniform1f(get_uniform_location(name), static_cast<GLfloat>(value));
   }
 
   /**
@@ -79,9 +115,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setVec2(const std::string &name, const glm::vec2 &value)
+  void set_uniform(const std::string &name, const glm::vec2 &value)
   {
-    glUniform2fv(getUniformLocation(name), 1, &value[0]);
+    glUniform2fv(get_uniform_location(name), 1, &value[0]);
   }
 
   /**
@@ -90,9 +126,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setVec3(const std::string &name, const glm::vec3 &value)
+  void set_uniform(const std::string &name, const glm::vec3 &value)
   {
-    glUniform3fv(getUniformLocation(name), 1, &value[0]);
+    glUniform3fv(get_uniform_location(name), 1, &value[0]);
   }
 
   /**
@@ -101,9 +137,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setVec4(const std::string &name, const glm::vec4 &value)
+  void set_uniform(const std::string &name, const glm::vec4 &value)
   {
-    glUniform4fv(getUniformLocation(name), 1, &value[0]);
+    glUniform4fv(get_uniform_location(name), 1, &value[0]);
   }
 
   /**
@@ -112,9 +148,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setMat2(const std::string &name, const glm::mat2 &value)
+  void set_uniform(const std::string &name, const glm::mat2 &value)
   {
-    glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, &value[0][0]);
+    glUniformMatrix2fv(get_uniform_location(name), 1, GL_FALSE, &value[0][0]);
   }
 
   /**
@@ -123,9 +159,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setMat3(const std::string &name, const glm::mat3 &value)
+  void set_uniform(const std::string &name, const glm::mat3 &value)
   {
-    glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, &value[0][0]);
+    glUniformMatrix3fv(get_uniform_location(name), 1, GL_FALSE, &value[0][0]);
   }
 
   /**
@@ -134,9 +170,9 @@ public:
    * @param name Name of the variable
    * @param value Value
    */
-  void setMat4(const std::string &name, const glm::mat4 &value)
+  void set_uniform(const std::string &name, const glm::mat4 &value)
   {
-    glUniformMatrix4fv(getUniformLocation(name),
+    glUniformMatrix4fv(get_uniform_location(name),
                        1,
                        GL_FALSE,
                        glm::value_ptr(value));
@@ -147,14 +183,12 @@ public:
    *
    * @param name Name of the variable
    * @param value Value
-   * @param count Number of matrices
    */
-  void setMultipleMat4(const std::string &name,
-                       const glm::mat4 &  value,
-                       const unsigned     count)
+  template <std::size_t SIZE>
+  void set_uniform(const std::string &name, std::array<glm::mat4, SIZE> &value)
   {
-    glUniformMatrix4fv(getUniformLocation(name),
-                       count,
+    glUniformMatrix4fv(get_uniform_location(name),
+                       value.size(),
                        GL_FALSE,
                        glm::value_ptr(value));
   }
@@ -166,12 +200,12 @@ public:
    *
    * @return Attribute location
    */
-  GLuint getAttribLocation(const std::string &name) const
+  GLuint get_attrib_location(const std::string &name) const
   {
     return glGetAttribLocation(id, name.c_str());
   }
 
-  int getUniformLocation(const std::string &name)
+  int get_uniform_location(const std::string &name)
   {
     if (uniformLocationCache.find(name) != uniformLocationCache.end())
     {
@@ -202,8 +236,8 @@ private:
     GEOMETRY
   };
 
-  std::string shaderTypeToString(ShaderType shaderType) const;
+  std::string shader_type_to_string(ShaderType shaderType) const;
 
-  void checkForCompileErrors(const GLuint     shaderId,
-                             const ShaderType shaderType);
+  void check_for_compile_errors(const GLuint     shaderId,
+                                const ShaderType shaderType);
 };

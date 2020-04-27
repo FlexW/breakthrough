@@ -47,6 +47,10 @@ void Texture2D::generate(const unsigned char *data)
   unbind();
 }
 
-void Texture2D::bind() const { glBindTexture(GL_TEXTURE_2D, id); }
+void Texture2D::bind(unsigned slot) const
+{
+  glActiveTexture(GL_TEXTURE0 + slot);
+  glBindTexture(GL_TEXTURE_2D, id);
+}
 
 void Texture2D::unbind() const { glBindTexture(GL_TEXTURE_2D, 0); }

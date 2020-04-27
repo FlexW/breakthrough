@@ -106,7 +106,7 @@ void GameLevel::init(std::vector<std::vector<unsigned int>> tile_data,
                        true,
                        glm::vec3(0.8f, 0.8f, 0.7f));
 
-        bricks.push_back(obj);
+        bricks.push_back(std::move(obj));
       }
       else if (tile_data[y][x] > 1) // Non-solid
       {
@@ -124,11 +124,13 @@ void GameLevel::init(std::vector<std::vector<unsigned int>> tile_data,
         glm::vec2 pos(unit_width * x, unit_height * y);
         glm::vec2 size(unit_width, unit_height);
 
-        bricks.push_back(GameObject(pos,
-                                    size,
-                                    ResourceManager::get_texture("block"),
-                                    false,
-                                    color));
+        GameObject obj(pos,
+                       size,
+                       ResourceManager::get_texture("block"),
+                       false,
+                       color);
+
+        bricks.push_back(std::move(obj));
       }
     }
   }

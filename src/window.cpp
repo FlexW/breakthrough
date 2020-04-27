@@ -138,3 +138,5 @@ double Window::get_running_time()
   const auto runningTime = (get_current_time_millis() - start_time) / 1000.0;
   return runningTime;
 }
+
+double Window::get_time() { return glfwGetTime(); }
