@@ -13,7 +13,17 @@ Game::Game(unsigned width, unsigned height)
   init();
 }
 
-Game::~Game() { ResourceManager::clear(); }
+Game::~Game()
+{
+  // Delete audio sources before audio buffers
+  audio_source_solid.reset();
+  audio_source_breakout.reset();
+  audio_source_bleep.reset();
+  audio_source_powerup.reset();
+  audio_source_nonsolid.reset();
+
+  ResourceManager::clear();
+}
 
 void Game::init()
 {
@@ -25,6 +35,10 @@ void Game::init()
   load_levels();
   configure_game_objects();
   init_post_processor();
+  load_audio();
+  configure_audio();
+
+  audio_source_breakout->play();
 }
 
 void Game::draw()
@@ -100,6 +114,7 @@ void Game::process_input(float delta_time)
 
 void Game::update(float delta_time)
 {
+  update_audio();
   ball->move(delta_time, window_width);
   update_collisions();
   particle_generator->update(delta_time,
@@ -298,11 +313,13 @@ void Game::update_collisions()
         {
           box.set_destroyed(true);
           spawn_power_ups(box);
+          audio_source_nonsolid->play();
         }
         else
         {
           shake_time = 0.05f;
           post_processor->set_shake(true);
+          audio_source_solid->play();
         }
 
         // collision resolution
@@ -377,6 +394,7 @@ void Game::update_collisions()
         activate_power_up(power_up);
         power_up.set_destroyed(true);
         power_up.set_activated(true);
+        audio_source_powerup->play();
       }
     }
   }
@@ -408,6 +426,8 @@ void Game::update_collisions()
     // fix sticky paddle
     ball->set_velocity(glm::vec2(ball->get_velocity().x,
                                  -1.0f * glm::abs(ball->get_velocity().y)));
+
+    audio_source_bleep->play();
   }
 
   for (auto &power_up : power_ups)
@@ -699,4 +719,37 @@ bool Game::is_other_power_up_active(const std::vector<PowerUp> &power_ups,
         return true;
   }
   return false;
+}
+
+void Game::load_audio()
+{
+  ResourceManager::load_audio("audio/solid.wav", "solid");
+  ResourceManager::load_audio("audio/breakout.wav", "breakout");
+  ResourceManager::load_audio("audio/bleep.wav", "bleep");
+  ResourceManager::load_audio("audio/powerup.wav", "powerup");
+  ResourceManager::load_audio("audio/nonsolid.wav", "nonsolid");
+}
+
+void Game::configure_audio()
+{
+  audio_source_solid =
+      std::make_unique<AudioSource>(*ResourceManager::get_audio("solid"));
+  audio_source_breakout =
+      std::make_unique<AudioSource>(*ResourceManager::get_audio("breakout"));
+  audio_source_bleep =
+      std::make_unique<AudioSource>(*ResourceManager::get_audio("bleep"));
+  audio_source_powerup =
+      std::make_unique<AudioSource>(*ResourceManager::get_audio("powerup"));
+  audio_source_nonsolid =
+      std::make_unique<AudioSource>(*ResourceManager::get_audio("nonsolid"));
+}
+
+void Game::update_audio()
+{
+  // Play background music forever
+  auto state = audio_source_breakout->get_state();
+  if (state == AudioSource::State::STOPPED)
+  {
+    audio_source_breakout->play();
+  }
 }

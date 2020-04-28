@@ -3,6 +3,7 @@
 #include <stb/stb_image.h>
 
 #include "resource-manager.hpp"
+#include "wav-loader.hpp"
 
 static const std::string LOG_TAG = "ResourceManager";
 
@@ -11,6 +12,9 @@ std::unordered_map<std::string, std::shared_ptr<Texture2D>>
 
 std::unordered_map<std::string, std::shared_ptr<Shader>>
     ResourceManager::shaders;
+
+std::unordered_map<std::string, std::shared_ptr<AudioBuffer>>
+    ResourceManager::audio_buffers;
 
 const std::string ResourceManager::resources_directory = "resources";
 
@@ -69,6 +73,7 @@ void ResourceManager::clear()
 {
   textures.clear();
   shaders.clear();
+  audio_buffers.clear();
 }
 
 std::shared_ptr<Shader>
@@ -152,4 +157,56 @@ ResourceManager::load_texture_from_file(const std::string &file,
   stbi_image_free(data);
 
   return texture;
+}
+
+std::shared_ptr<AudioBuffer>
+ResourceManager::load_audio(const std::string &audio_file,
+                            const std::string &name)
+{
+  const auto real_audio_file = (resources_directory + "/" + audio_file);
+
+  Log().i(LOG_TAG) << "Load audio from file: " << real_audio_file;
+
+  if (audio_buffers.find(name) != audio_buffers.end())
+  {
+    return audio_buffers[name];
+  }
+
+  auto wav_file = load_wav(real_audio_file);
+
+  // Determine format
+  AudioBuffer::Format format;
+  if (wav_file.channels == 1 && wav_file.bits_per_sample == 8)
+    format = AudioBuffer::Format::MONO8;
+  else if (wav_file.channels == 1 && wav_file.bits_per_sample == 16)
+    format = AudioBuffer::Format::MONO16;
+  else if (wav_file.channels == 2 && wav_file.bits_per_sample == 8)
+    format = AudioBuffer::Format::STEREO8;
+  else if (wav_file.channels == 2 && wav_file.bits_per_sample == 16)
+    format = AudioBuffer::Format::STEREO16;
+  else
+  {
+    throw std::runtime_error(
+        "Unrecognised wave format: " + std::to_string(wav_file.channels) +
+        " channels, " + std::to_string(wav_file.bits_per_sample) + " bps");
+  }
+
+  auto audio_buffer = std::make_shared<AudioBuffer>(format,
+                                                    wav_file.data,
+                                                    wav_file.sample_rate,
+                                                    wav_file.size);
+
+  audio_buffers[name] = audio_buffer;
+
+  return audio_buffer;
+}
+
+std::shared_ptr<AudioBuffer> ResourceManager::get_audio(const std::string &name)
+{
+  if (audio_buffers.find(name) == audio_buffers.end())
+  {
+    throw std::runtime_error("Audio buffer " + name + " not found");
+  }
+
+  return audio_buffers[name];
 }

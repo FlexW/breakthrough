@@ -1,5 +1,7 @@
 #pragma once
 
+#include "audio-master.hpp"
+#include "audio-source.hpp"
 #include "ball-object.hpp"
 #include "game-level.hpp"
 #include "particle-generator.hpp"
@@ -110,6 +112,14 @@ private:
 
   std::unique_ptr<PostProcessor> post_processor;
 
+  AudioMaster audio_master;
+
+  std::unique_ptr<AudioSource> audio_source_solid;
+  std::unique_ptr<AudioSource> audio_source_breakout;
+  std::unique_ptr<AudioSource> audio_source_bleep;
+  std::unique_ptr<AudioSource> audio_source_powerup;
+  std::unique_ptr<AudioSource> audio_source_nonsolid;
+
   std::shared_ptr<Texture2D> texture_speed       = nullptr;
   std::shared_ptr<Texture2D> texture_sticky      = nullptr;
   std::shared_ptr<Texture2D> texture_passthrough = nullptr;
@@ -120,6 +130,10 @@ private:
   void load_textures();
 
   void load_shaders();
+
+  void load_audio();
+
+  void configure_audio();
 
   void configure_shaders();
 
@@ -139,4 +153,6 @@ private:
 
   bool is_other_power_up_active(const std::vector<PowerUp> &power_ups,
                                 const PowerUp::Type         type) const;
+
+  void update_audio();
 };

@@ -6,15 +6,13 @@
 
 #include <glad/glad.h>
 
+#include "audio-buffer.hpp"
 #include "shader.hpp"
 #include "texture.hpp"
 
 class ResourceManager
 {
 public:
-  static std::unordered_map<std::string, std::shared_ptr<Shader>>    shaders;
-  static std::unordered_map<std::string, std::shared_ptr<Texture2D>> textures;
-
   static std::shared_ptr<Shader>
   load_shader(const std::string &vertex_shader_file,
               const std::string &fragment_shader_file,
@@ -34,10 +32,20 @@ public:
 
   static std::shared_ptr<Texture2D> get_texture(const std::string &name);
 
+  static std::shared_ptr<AudioBuffer> load_audio(const std::string &audio_file,
+                                                 const std::string &name);
+
+  static std::shared_ptr<AudioBuffer> get_audio(const std::string &name);
+
   static void clear();
 
 private:
   static const std::string resources_directory;
+
+  static std::unordered_map<std::string, std::shared_ptr<Shader>>    shaders;
+  static std::unordered_map<std::string, std::shared_ptr<Texture2D>> textures;
+  static std::unordered_map<std::string, std::shared_ptr<AudioBuffer>>
+      audio_buffers;
 
   ResourceManager()                   = delete;
   ~ResourceManager()                  = delete;
