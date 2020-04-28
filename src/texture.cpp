@@ -7,10 +7,17 @@ Texture2D::Texture2D(const unsigned       width,
                      const unsigned       height,
                      const unsigned char *data,
                      unsigned             internal_format,
-                     unsigned             image_format)
-    : width(width), height(height), internal_format(internal_format),
-      image_format(image_format), wrap_s(GL_REPEAT), wrap_t(GL_REPEAT),
-      filter_min(GL_LINEAR), filter_max(GL_LINEAR)
+                     unsigned             image_format,
+                     unsigned             wrap_s,
+                     unsigned             wrap_t)
+    : width(width),
+      height(height),
+      internal_format(internal_format),
+      image_format(image_format),
+      wrap_s(wrap_s),
+      wrap_t(wrap_t),
+      filter_min(GL_LINEAR),
+      filter_max(GL_LINEAR)
 {
   glGenTextures(1, &this->id);
   generate(data);

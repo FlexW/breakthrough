@@ -1,8 +1,14 @@
 file(GLOB_RECURSE HEADER_LIST CONFIGURE_DEPENDS "${breakthroughgl_SOURCE_DIR}/include" "*.hpp")
 file(GLOB_RECURSE SOURCE_LIST CONFIGURE_DEPENDS "*.cpp")
 
+find_package(Freetype REQUIRED)
+
 add_library(breakthroughgl_library ${SOURCE_LIST} ${HEADER_LIST})
-target_link_libraries(breakthroughgl_library glad_library stb_library glfw openal)
+target_link_libraries(breakthroughgl_library
+  glad_library
+  stb_library
+  glfw openal
+  ${FREETYPE_LIBRARIES})
 target_include_directories(
   breakthroughgl_library
   PUBLIC
@@ -10,7 +16,9 @@ target_include_directories(
   ../external
   ../external/glm
   ../external/glfw/include
-  ../external/openal-soft/include)
+  ../external/openal-soft/include
+  ${FREETYPE_INCLUDE_DIR_ft2build}
+  ${FREETYPE_INCLUDE_DIR_freetype2})
 target_compile_features(breakthroughgl_library PUBLIC cxx_std_20)
 
 target_compile_options(breakthroughgl_library PRIVATE

@@ -11,7 +11,9 @@ public:
             const unsigned       height,
             const unsigned char *data,
             const unsigned       internal_format = GL_RGB,
-            const unsigned       image_format    = GL_RGB);
+            const unsigned       image_format    = GL_RGB,
+            unsigned             wrap_s          = GL_REPEAT,
+            unsigned             wrap_t          = GL_REPEAT);
 
   ~Texture2D();
 

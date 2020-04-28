@@ -8,6 +8,7 @@
 #include "post-processor.hpp"
 #include "power-up.hpp"
 #include "sprite-renderer.hpp"
+#include "text-renderer.hpp"
 #include "window.hpp"
 
 enum class GameState
@@ -102,6 +103,10 @@ private:
 
   float shake_time = 0.0f;
 
+  const unsigned lives_max = 3;
+
+  unsigned lives_count = lives_max;
+
   std::vector<PowerUp> power_ups;
 
   std::unique_ptr<GameObject> player;
@@ -111,6 +116,8 @@ private:
   std::unique_ptr<ParticleGenerator> particle_generator;
 
   std::unique_ptr<PostProcessor> post_processor;
+
+  std::unique_ptr<TextRenderer> text_renderer;
 
   AudioMaster audio_master;
 
@@ -148,6 +155,8 @@ private:
   void init_particle_generator();
 
   void init_post_processor();
+
+  void init_text_renderer();
 
   void activate_power_up(PowerUp &power_up);
 
