@@ -25,8 +25,7 @@ TextRenderer::TextRenderer(const std::shared_ptr<Renderer> renderer,
   layout.pushFloat(2);
   layout.pushFloat(2);
 
-  vertex_array.add_buffer(*vertex_buffer, layout);
-  vertex_array.unbind();
+  vertex_array.add_buffer_by_ref(*vertex_buffer, layout);
 }
 
 void TextRenderer::load(const std::string font, unsigned int fontSize)
@@ -53,7 +52,7 @@ void TextRenderer::load(const std::string font, unsigned int fontSize)
 
   // Disable byte-alignment restriction
   // TODO: Move this to renderer
-  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  GL_CALL(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
 
   // Then for the first 128 ASCII characters, pre-load/compile their
   // characters and store them
@@ -119,16 +118,10 @@ void TextRenderer::render_text(const std::string &text,
     Vertex2D vertex1 = {glm::vec2(xpos, ypos + h), glm::vec2(0.0f, 1.0f)};
     Vertex2D vertex2 = {glm::vec2(xpos + w, ypos), glm::vec2(1.0f, 0.0f)};
     Vertex2D vertex3 = {glm::vec2(xpos, ypos), glm::vec2(0.0f, 0.0f)};
+
     Vertex2D vertex4 = {glm::vec2(xpos, ypos + h), glm::vec2(0.0f, 1.0f)};
     Vertex2D vertex5 = {glm::vec2(xpos + w, ypos + h), glm::vec2(1.0f, 1.0f)};
     Vertex2D vertex6 = {glm::vec2(xpos + w, ypos), glm::vec2(1.0f, 0.0f)};
-
-    // Vertex2D vertex1 = {glm::vec2(0, 1), glm::vec2(0.0f, 1.0f)};
-    // Vertex2D vertex2 = {glm::vec2(1, 1), glm::vec2(1.0f, 0.0f)};
-    // Vertex2D vertex3 = {glm::vec2(1, 1), glm::vec2(0.0f, 0.0f)};
-    // Vertex2D vertex4 = {glm::vec2(1, 0), glm::vec2(0.0f, 1.0f)};
-    // Vertex2D vertex5 = {glm::vec2(0, 0), glm::vec2(1.0f, 1.0f)};
-    // Vertex2D vertex6 = {glm::vec2(0, 1), glm::vec2(1.0f, 0.0f)};
 
     std::vector<Vertex2D> vertices{vertex1,
                                    vertex2,
@@ -141,7 +134,7 @@ void TextRenderer::render_text(const std::string &text,
     ch->texture->bind(0);
 
     // Update content of vertex buffer memory
-    vertex_buffer->set_sub_data(0, sizeof(vertices), vertices);
+    vertex_buffer->set_sub_data(0, sizeof(Vertex2D) * 6, vertices);
 
     // Render quad
     renderer->draw(vertex_array);

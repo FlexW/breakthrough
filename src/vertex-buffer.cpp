@@ -4,29 +4,26 @@
 
 static const std::string LOG_TAG = "VertexBuffer";
 
-VertexBuffer::VertexBuffer(const std::size_t size)
+VertexBuffer::VertexBuffer(const std::size_t size) : count(size), data()
 {
-  glGenBuffers(1, &id);
-  glBindBuffer(GL_ARRAY_BUFFER, id);
+  GL_CALL(glGenBuffers(1, &id));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, id));
 
-  glBufferData(GL_ARRAY_BUFFER,
-               size * sizeof(Vertex2D),
-               nullptr,
-               GL_DYNAMIC_DRAW);
+  GL_CALL(glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW));
 }
 
 VertexBuffer::VertexBuffer(const std::vector<Vertex2D> &data, Usage)
     : count(data.size()),
       data(data)
 {
-  glGenBuffers(1, &id);
-  glBindBuffer(GL_ARRAY_BUFFER, id);
+  GL_CALL(glGenBuffers(1, &id));
+  GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, id));
 
   // TODO: Take usage into account
-  glBufferData(GL_ARRAY_BUFFER,
-               data.size() * sizeof(Vertex2D),
-               &data[0],
-               GL_STATIC_DRAW);
+  GL_CALL(glBufferData(GL_ARRAY_BUFFER,
+                       data.size() * sizeof(Vertex2D),
+                       &data[0],
+                       GL_STATIC_DRAW));
 }
 
 VertexBuffer::VertexBuffer(VertexBuffer &&vertex_buffer)
@@ -64,12 +61,12 @@ void VertexBuffer::operator=(VertexBuffer &&vertex_buffer)
 VertexBuffer::~VertexBuffer()
 {
   Log().d(LOG_TAG) << "Delete vertex buffer with id: " << id;
-  glDeleteBuffers(1, &id);
+  GL_CALL(glDeleteBuffers(1, &id));
 }
 
-void VertexBuffer::bind() const { glBindBuffer(GL_ARRAY_BUFFER, id); }
+void VertexBuffer::bind() const { GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, id)); }
 
-void VertexBuffer::unbind() const { glBindBuffer(GL_ARRAY_BUFFER, 0); }
+void VertexBuffer::unbind() const { GL_CALL(glBindBuffer(GL_ARRAY_BUFFER, 0)); }
 
 unsigned VertexBuffer::get_count() const { return count; }
 
@@ -78,9 +75,10 @@ void VertexBuffer::set_sub_data(std::size_t                  offset,
                                 const std::vector<Vertex2D> &data)
 {
   bind();
-  glBufferSubData(id,
-                  static_cast<GLintptr>(offset),
-                  static_cast<GLsizeiptr>(size),
-                  static_cast<const GLvoid *>(&data[0]));
+  GL_CALL(glBufferSubData(GL_ARRAY_BUFFER,
+                          static_cast<GLintptr>(offset),
+                          static_cast<GLsizeiptr>(size),
+                          static_cast<const GLvoid *>(&data[0])));
+
   unbind();
 }

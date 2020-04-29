@@ -5,19 +5,19 @@
 void Renderer::draw(const VertexArray &vertex_array) const
 {
   vertex_array.bind();
-  glDrawArrays(GL_TRIANGLES, 0, vertex_array.get_count());
+  GL_CALL(glDrawArrays(GL_TRIANGLES, 0, vertex_array.get_count()));
 }
 
 void Renderer::blend_func(GLenum sfactor, GLenum dfactor)
 {
-  glBlendFunc(sfactor, dfactor);
+  GL_CALL(glBlendFunc(sfactor, dfactor));
 }
 
-void Renderer::clear(GLbitfield flags) { glClear(flags); }
+void Renderer::clear(GLbitfield flags) { GL_CALL(glClear(flags)); }
 
 void Renderer::clear_color(float red, float green, float blue, float alpha)
 {
-  glClearColor(red, green, blue, alpha);
+  GL_CALL(glClearColor(red, green, blue, alpha));
 }
 
 void Renderer::set_viewport(const int         x,
@@ -25,7 +25,7 @@ void Renderer::set_viewport(const int         x,
                             const std::size_t width,
                             const std::size_t height) const
 {
-  glViewport(x, y, width, height);
+  GL_CALL(glViewport(x, y, width, height));
 }
 
 void Renderer::blit_framebuffer(int        srcx0,
@@ -39,16 +39,16 @@ void Renderer::blit_framebuffer(int        srcx0,
                                 GLbitfield mask,
                                 GLenum     filter)
 {
-  glBlitFramebuffer(srcx0,
-                    srcy0,
-                    srcx1,
-                    srcy1,
-                    dstx0,
-                    dsty0,
-                    dstx1,
-                    dsty1,
-                    mask,
-                    filter);
+  GL_CALL(glBlitFramebuffer(srcx0,
+                            srcy0,
+                            srcx1,
+                            srcy1,
+                            dstx0,
+                            dsty0,
+                            dstx1,
+                            dsty1,
+                            mask,
+                            filter));
 }
 
 void Renderer::init(GLADloadproc loadProc)
@@ -69,6 +69,6 @@ void Renderer::init_glad(GLADloadproc loadProc)
 
 void Renderer::setup()
 {
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  GL_CALL(glEnable(GL_BLEND));
+  GL_CALL(glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA));
 }

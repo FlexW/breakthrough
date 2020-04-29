@@ -4,15 +4,19 @@
 
 Renderbuffer::Renderbuffer(unsigned width, unsigned height)
 {
-  glGenRenderbuffers(1, &id);
+  GL_CALL(glGenRenderbuffers(1, &id));
 
   bind();
 
-  glRenderbufferStorageMultisample(GL_RENDERBUFFER, 4, GL_RGB, width, height);
+  GL_CALL(glRenderbufferStorageMultisample(GL_RENDERBUFFER,
+                                           4,
+                                           GL_RGB,
+                                           width,
+                                           height));
 }
 
-Renderbuffer::~Renderbuffer() { glDeleteRenderbuffers(1, &id); }
+Renderbuffer::~Renderbuffer() { GL_CALL(glDeleteRenderbuffers(1, &id)); }
 
-void Renderbuffer::bind() { glBindRenderbuffer(GL_RENDERBUFFER, id); }
+void Renderbuffer::bind() { GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, id)); }
 
-void Renderbuffer::unbind() { glBindRenderbuffer(GL_RENDERBUFFER, 0); }
+void Renderbuffer::unbind() { GL_CALL(glBindRenderbuffer(GL_RENDERBUFFER, 0)); }

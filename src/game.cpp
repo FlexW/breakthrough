@@ -8,7 +8,7 @@ static const std::string LOG_TAG = "Game";
 
 Game::Game(unsigned width, unsigned height)
     : Window("Breaktrough", width, height),
-      game_state(GameState::GAME_ACTIVE)
+      game_state(GameState::GAME_MENU)
 {
   init();
 }
@@ -53,6 +53,37 @@ void Game::process_input(float delta_time)
 {
   switch (game_state)
   {
+  case GameState::GAME_MENU:
+  {
+    if (get_key(GLFW_KEY_ENTER))
+    {
+      game_state = GameState::GAME_ACTIVE;
+    }
+
+    if (get_key(GLFW_KEY_W))
+    {
+      level = (level + 1) % game_levels.size();
+    }
+
+    if (get_key(GLFW_KEY_S))
+    {
+      if (level > 0)
+        --level;
+      else
+        level = game_levels.size() - 1;
+    }
+    break;
+  }
+
+  case GameState::GAME_WIN:
+  {
+    if (get_key(GLFW_KEY_ENTER))
+    {
+      game_state = GameState::GAME_MENU;
+    }
+    break;
+  }
+
   case GameState::GAME_ACTIVE:
   {
     float velocity = PLAYER_VELOCITY * delta_time;
@@ -88,19 +119,6 @@ void Game::process_input(float delta_time)
           ball->set_position(glm::vec2(ball_pos.x + velocity, ball_pos.y));
         }
       }
-    }
-
-    if (get_key(GLFW_KEY_W))
-    {
-      level = (level + 1) % game_levels.size();
-    }
-
-    if (get_key(GLFW_KEY_S))
-    {
-      if (level > 0)
-        --level;
-      else
-        level = game_levels.size() - 1;
     }
 
     // Release ball
@@ -144,15 +162,24 @@ void Game::update(float delta_time)
     {
       reset_level();
       reset_player();
+      game_state = GameState::GAME_MENU;
     }
+    reset_player();
+  }
+
+  // Check win condition
+  if (game_state == GameState::GAME_ACTIVE && game_levels[level].is_completed())
+  {
+    reset_level();
+    reset_player();
+    game_state = GameState::GAME_WIN;
   }
 }
 
 void Game::render()
 {
-  switch (game_state)
-  {
-  case GameState::GAME_ACTIVE:
+  if (game_state == GameState::GAME_ACTIVE ||
+      game_state == GameState::GAME_MENU || game_state == GameState::GAME_WIN)
   {
     post_processor->begin_render();
     {
@@ -186,7 +213,31 @@ void Game::render()
                                5.0f,
                                1.0f);
   }
-  default:;
+
+  if (game_state == GameState::GAME_MENU)
+  {
+    text_renderer->render_text("Press ENTER to start",
+                               350.0f,
+                               window_height / 2 + 5.0f,
+                               2.0f);
+    text_renderer->render_text("Press W or S to select level",
+                               340.0f,
+                               window_height / 2 + 45.0f,
+                               1.5f);
+  }
+
+  if (game_state == GameState::GAME_WIN)
+  {
+    text_renderer->render_text("You WON!!!",
+                               550.0f,
+                               window_height / 2.0f - 20.0f,
+                               2.0f,
+                               glm::vec3(0.0f, 1.0f, 0.0f));
+    text_renderer->render_text("Press ENTER to retry or ESC to quit",
+                               320.0f,
+                               window_height / 2.0f + 20.0f,
+                               1.5f,
+                               glm::vec3(1.0f, 1.0f, 0.0f));
   }
 }
 

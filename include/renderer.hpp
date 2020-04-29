@@ -4,7 +4,7 @@
 
 // clang-format off
 // Gl needs to be included before glfw
-#include <glad/glad.h>
+#include "opengl-util.hpp"
 #include <GLFW/glfw3.h>
 // clang-format on
 

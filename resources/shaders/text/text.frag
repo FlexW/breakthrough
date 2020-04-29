@@ -9,7 +9,6 @@ uniform vec3 text_color;
 
 void main()
 {
-  color = vec4(1.0f);
-  // vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, frag_texture_coords).r);
-  // color = vec4(text_color, 1.0) * sampled;
+  vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, frag_texture_coords).r);
+  color = vec4(text_color, 1.0) * sampled;
 }
