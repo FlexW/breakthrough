@@ -1,43 +1,27 @@
 #pragma once
 
 #include <iostream>
+#include <queue>
 #include <sstream>
+#include <thread>
+
+extern std::queue<std::string> log_queue;
 
 class Log
 {
 
 public:
-  Log() {}
+  Log();
 
-  ~Log()
-  {
-    fprintf(stderr, "%s\n", log_buffer.str().c_str());
-    fflush(stderr);
-  }
+  ~Log();
 
-  std::ostringstream &i(const std::string &tag)
-  {
-    log_buffer << "[\033[1;34mINFO\033[0m] (" << tag << ") ";
-    return log_buffer;
-  }
+  std::ostringstream &i(const std::string &tag);
 
-  std::ostringstream &w(const std::string &tag)
-  {
-    log_buffer << "[\033[1;33mWARNING\033[0m] (" << tag << ") ";
-    return log_buffer;
-  }
+  std::ostringstream &w(const std::string &tag);
 
-  std::ostringstream &e(const std::string &tag)
-  {
-    log_buffer << "[\033[1;31mERROR\033[0m] (" << tag << ") ";
-    return log_buffer;
-  }
+  std::ostringstream &e(const std::string &tag);
 
-  std::ostringstream &d(const std::string &tag)
-  {
-    log_buffer << "[DEBUG] (" << tag << ") ";
-    return log_buffer;
-  }
+  std::ostringstream &d(const std::string &tag);
 
 private:
   std::ostringstream log_buffer;
@@ -45,3 +29,15 @@ private:
   Log(Log &)  = delete;
   Log(Log &&) = delete;
 };
+
+/**
+ * Needs to be called at start of app. Otherwise no logging will
+ * occur.
+ */
+void start_log_system();
+
+/**
+ * Stops the log system. Waits until the logger has logged every
+ * message.
+ */
+void stop_log_system();
